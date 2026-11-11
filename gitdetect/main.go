@@ -4,10 +4,15 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strings"
 	"sync"
+)
+
+var (
+	errL = log.New(os.Stderr, "[error] ", log.Ltime)
 )
 
 func main() {
@@ -36,7 +41,8 @@ func detectGithub(org string) {
 	url := "https://github.com/" + org
 	resp, err := http.Get(url)
 	if err != nil {
-		panic(err)
+		errL.Printf("'http.Get': %v", err)
+		return
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode == 200 {
