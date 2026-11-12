@@ -1,0 +1,18 @@
+hackerone.com
+support.hackerone.com
+api.hackerone.com
+www.hackerone.com
+https://*.hackerone-user-content.com/
+Cloudflare Pages
+CDNJS
+https://gitlab.com/gitlab
+*.vpn.hackerone.net
+*.wordpress.org
+com.snapchat.android
+https://github.com/slack
+https://play.google.com/store/apps/details?id=com.myntra.android
+https://apps.apple.com/us/app/quip-docs-chat-sheets/id647922896
+com.linkedin.android
+203.0.113.7
+https://www.npmjs.com/package/lodash
+https://hackerone.com
