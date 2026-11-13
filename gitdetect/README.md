@@ -1,17 +1,15 @@
 ## gitdetect
 
 ```console
-> cat .\handles.txt
-google
-github
-gitlab
+$ cat handles.txt
 acronis
 basecamp
+github
+google
 
-> cat .\handles.txt | go run . -c 5
-https://github.com/gitlab
-https://github.com/basecamp
-https://github.com/acronis
-https://github.com/google
-https://github.com/github
+$ cat handles.txt | go run .
+{"name":"acronis","cloud":"github"}
+{"name":"basecamp","cloud":"github"}
+{"name":"github","cloud":"github"}
+{"name":"google","cloud":"github"}
 ```

@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"flag"
 	"io"
 	"log"
@@ -18,7 +19,7 @@ var (
 
 func main() {
 	concurrency := flag.Int("c", 5, "max concurrent requests to send")
-	outputFile := flag.String("o", "", "path to the output file")
+	outputFile := flag.String("o", "", "path to the output jsonl file")
 	flag.Parse()
 
 	if *outputFile != "" {
@@ -56,7 +57,8 @@ func detectGithub(org string) {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode == 200 {
-		opL.Println(url)
+		data := must(json.Marshal(NewOrg(org, Github)))
+		opL.Println(string(data))
 	}
 }
 
@@ -72,4 +74,11 @@ func readOrg() []string {
 		panic(scanner.Err())
 	}
 	return orgList
+}
+
+func must[T any](v T, err error) T {
+	if err != nil {
+		panic(err)
+	}
+	return v
 }
