@@ -3,7 +3,7 @@ package main
 import (
 	"bufio"
 	"flag"
-	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -12,18 +12,29 @@ import (
 )
 
 var (
-	errL = log.New(os.Stderr, "[error] ", log.Ltime)
+	errL = log.New(os.Stderr, "[error] ", log.Ltime|log.Lshortfile)
+	opL  = log.New(os.Stdout, "", 0)
 )
 
 func main() {
 	concurrency := flag.Int("c", 5, "max concurrent requests to send")
+	outputFile := flag.String("o", "", "path to the output file")
 	flag.Parse()
 
+	if *outputFile != "" {
+		file, err := os.OpenFile(*outputFile, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
+		if err != nil {
+			panic(err)
+		}
+		defer file.Close()
+		opL.SetOutput(io.MultiWriter(os.Stdout, file))
+	}
+
 	orgList := readOrg()
+
 	var wg sync.WaitGroup
 	wg.Add(len(orgList))
 	sem := make(chan struct{}, *concurrency)
-
 	for _, org := range orgList {
 		sem <- struct{}{} // accquire slot
 		go func(org string) {
@@ -33,7 +44,6 @@ func main() {
 			detectGithub(org)
 		}(org)
 	}
-
 	wg.Wait()
 }
 
@@ -46,7 +56,7 @@ func detectGithub(org string) {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode == 200 {
-		fmt.Println(url)
+		opL.Println(url)
 	}
 }
 
