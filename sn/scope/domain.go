@@ -1,77 +1,62 @@
 package scope
 
 import (
-	"bufio"
-	"embed"
 	"encoding/json"
-	"io"
-	"net/http"
 	"regexp"
+	"slices"
 	"sn/log"
 	"sn/utils/must"
 	"strings"
 )
 
-// tld configuration
-const ianaURL = "https://data.iana.org/TLD/tlds-alpha-by-domain.txt"
-
+// shurg: tried tlds from iana was mapping tons of domain as
 var (
-	//go:embed tlds.txt
-	localCacheTLDs embed.FS
-	tlds           = make(map[string]struct{})
-	isTLDsLoaded   bool
+	tlds = []string{
+		"com",
+		"in",
+		"org",
+	}
 )
 
 // regex
 var (
-	domainRegex   = regexp.MustCompile(`^[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+$`)
+	domainRegex   = regexp.MustCompile(`^[A-Za-z0-9*-]+(\.[A-Za-z0-9*-]+)+$`)
 	wildcardRegex = regexp.MustCompile(`^.*\*.*$`) // use after detecting the domain
 )
 
-func detectDomainType(v string) {
-	if wildcardRegex.MatchString(v) {
-		log.Output.Println(string(must.Eval(json.Marshal(New(v, Domain)))))
-		return
+func detectDomainType(v string) bool {
+	if !domainRegex.MatchString(v) {
+		return false
 	}
-	// shrug: this might be unreliable and map domain scopes as android mut meh couldn't think of anything else
-	if isTLD(strings.Split(v, ".")[0]) {
+
+	if strings.Contains(v, "*") {
+		log.Output.Println(string(must.Eval(json.Marshal(New(v, WildCard)))))
+		return true
+	}
+
+	dParts := strings.Split(v, ".")
+	tld := dParts[len(dParts)-1]
+
+	switch tld {
+	case "apk":
 		log.Output.Println(string(must.Eval(json.Marshal(New(v, Android)))))
-		return
+		return true
+	case "ipa":
+		log.Output.Println(string(must.Eval(json.Marshal(New(v, IOS)))))
+		return true
 	}
+
+	// shrug: this might be unreliable and map domain scopes as android
+	// android app package names are usually reversed form of domain name so the tld becomes the leftmost DNS label
+	if isTLD(dParts[0]) {
+		log.Output.Println(string(must.Eval(json.Marshal(New(v, Android)))))
+		return true
+	}
+
 	log.Output.Println(string(must.Eval(json.Marshal(New(v, Domain)))))
+	return true
 }
 
 func isTLD(s string) bool {
-	if !isTLDsLoaded {
-		loadTLDs()
-	}
-	_, exists := tlds[s]
-	return exists
-}
-
-func loadTLDs() {
-	loadTLD := func(body io.Reader) {
-		scanner := bufio.NewScanner(body)
-		for scanner.Scan() {
-			line := strings.TrimSpace(scanner.Text())
-			if strings.HasPrefix(line, "#") || line == "" {
-				continue
-			}
-			tlds[strings.ToLower(line)] = struct{}{}
-		}
-		must.Panic(scanner.Err())
-		isTLDsLoaded = true
-	}
-
-	resp, err := http.Get(ianaURL)
-	if err == nil {
-		defer resp.Body.Close()
-		loadTLD(resp.Body)
-		log.Info.Println("loaded tlds from iana website")
-	} else {
-		log.Err.Printf("failed to fetch latest tld list will use local cache. err='%v'", err)
-		file := must.Eval(localCacheTLDs.Open("tlds.txt"))
-		defer file.Close()
-		loadTLD(file)
-	}
+	return slices.Contains(tlds, s)
 }

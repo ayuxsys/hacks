@@ -20,8 +20,7 @@ func Detect(value string) {
 	}
 
 	// detect domain
-	if domainRegex.MatchString(value) {
-		detectDomainType(value)
+	if detected := detectDomainType(value); detected == true {
 		return
 	}
 
