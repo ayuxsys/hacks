@@ -1,33 +1,41 @@
 package scope
 
 import (
+	"encoding/json"
 	"net/url"
+	"sn/log"
+	"sn/utils/must"
 	"strings"
 )
 
-func DetectTypeWithHttpPrefix(u *url.URL) Type {
-	switch {
-	case isWildCard(u):
-		return WildCard
-	case isGitURL(u):
-		return Git
-	case isIOSApp(u):
-		return IOS
-	case isAndroidAPP(u):
-		return Android
-	case isNPM(u):
-		return NPM
-	case isPyPi(u):
-		return PyPi
-	case isGoPkg(u):
-		return GoPackage
-	default:
-		return URL
+func detectTypeWithHttpPrefix(value string) {
+	var sType Type
+	u, err := url.Parse(value)
+	if err != nil {
+		log.Warn.Printf("parse scope value with prefix 'http' %q as url: %v", value, err)
 	}
-}
+	switch {
+	case wildcardRegex.MatchString(u.Host):
+		sType = WildCard
+	case isGitURL(u):
+		sType = Git
+	case isIOSApp(u):
+		sType = IOS
+	case isAndroidAPP(u):
+		sType = Android
+	case isNPM(u):
+		sType = NPM
+	case isPyPi(u):
+		sType = PyPi
+	case isGoPkg(u):
+		sType = GoPackage
+	default:
+		sType = URL
+	}
 
-func isWildCard(parsedU *url.URL) bool {
-	return strings.HasPrefix(parsedU.Host, "*")
+	log.Output.Println(
+		string(must.Eval(json.Marshal(New(value, sType)))),
+	)
 }
 
 func isGitURL(u *url.URL) bool {
@@ -73,8 +81,7 @@ func isIOSApp(u *url.URL) bool {
 }
 
 func isNPM(u *url.URL) bool {
-	trailingPath, _, _ := strings.Cut(u.Path, "/")
-	return u.Host == "www.npmjs.com" && (trailingPath == "package" || trailingPath == "search")
+	return u.Host == "www.npmjs.com" && strings.Contains(u.Path, "package")
 }
 
 func isGoPkg(u *url.URL) bool {
@@ -82,6 +89,5 @@ func isGoPkg(u *url.URL) bool {
 }
 
 func isPyPi(u *url.URL) bool {
-	trailingPath, _, _ := strings.Cut(u.Path, "/")
-	return u.Host == "pypi.org" && trailingPath == "project"
+	return u.Host == "pypi.org" && strings.Contains(u.Path, "project")
 }

@@ -17,7 +17,9 @@ const (
 	WildCard Type = iota + 1
 	Domain
 	URL
+	// Network
 	IPv4
+	IPv6
 	CIDR
 	// Mobile Applications
 	IOS
@@ -41,6 +43,8 @@ func (t Type) string() string {
 		return "domain"
 	case IPv4:
 		return "ipv4"
+	case IPv6:
+		return "ipv6"
 	case CIDR:
 		return "cidr"
 	case Git:

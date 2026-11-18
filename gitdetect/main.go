@@ -2,11 +2,8 @@ package main
 
 import (
 	"bufio"
-	"encoding/json"
-	"flag"
 	"io"
 	"log"
-	"net/http"
 	"os"
 	"strings"
 	"sync"
@@ -18,12 +15,11 @@ var (
 )
 
 func main() {
-	concurrency := flag.Int("c", 5, "max concurrent requests to send")
-	outputFile := flag.String("o", "", "path to the output jsonl file")
-	flag.Parse()
+	c := &cmd{}
+	c.ParseFlags()
 
-	if *outputFile != "" {
-		file, err := os.OpenFile(*outputFile, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
+	if c.outputFile != "" {
+		file, err := os.OpenFile(c.outputFile, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
 		if err != nil {
 			panic(err)
 		}
@@ -31,38 +27,24 @@ func main() {
 		opL.SetOutput(io.MultiWriter(os.Stdout, file))
 	}
 
-	orgList := readOrg()
+	inputSlice := readStdin()
 
 	var wg sync.WaitGroup
-	wg.Add(len(orgList))
-	sem := make(chan struct{}, *concurrency)
-	for _, org := range orgList {
+	wg.Add(len(inputSlice))
+	sem := make(chan struct{}, c.concurreny)
+	for _, inp := range inputSlice {
 		sem <- struct{}{} // accquire slot
-		go func(org string) {
+		go func(inp string) {
 			releaseSlot := func() { <-sem }
 			defer releaseSlot()
 			defer wg.Done()
-			detectGithub(org)
-		}(org)
+			runOrgDetectors(inp)
+		}(inp)
 	}
 	wg.Wait()
 }
 
-func detectGithub(org string) {
-	url := "https://github.com/" + org
-	resp, err := http.Get(url)
-	if err != nil {
-		errL.Printf("'http.Get': %v", err)
-		return
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode == 200 {
-		data := must(json.Marshal(NewOrg(org, Github)))
-		opL.Println(string(data))
-	}
-}
-
-func readOrg() []string {
+func readStdin() []string {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	var orgList []string

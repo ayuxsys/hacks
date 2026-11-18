@@ -15,12 +15,15 @@ type GitCloudType int
 
 const (
 	Github GitCloudType = iota + 1
+	Gitlab
 )
 
 func (g GitCloudType) String() string {
 	switch g {
 	case Github:
 		return "github"
+	case Gitlab:
+		return "gitlab"
 	default:
 		return "unknown"
 	}
