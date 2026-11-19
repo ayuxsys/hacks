@@ -1,0 +1,43 @@
+# concurl
+
+https://github.com/tomnomnom/hacks/tree/master/concurl but with TLS spoofing
+
+```console
+$ echo -e "https://example.com\nhttps://go.dev\nhttps://tls.browserleaks.com/json"
+https://example.com
+https://go.dev
+
+$ echo -e "https://example.com\nhttps://go.dev\nhttps://tls.browserleaks.com/json" | concurl -- -i
+out\6146ccf3d0328dc70b77c636d3581ed5e401255ca6b8cb700f93b4ce901fa87e https://tls.browserleaks.com/json
+out\6e7f58f6b868b28a37be7c655609e66b467ff01dec11288ea5245bda84fee86f https://go.dev
+out\100680ad546ce6a577f42f52df33b4cfdca756859e664b8d7de329b150d09ce9 https://example.com
+
+$ cat out/6146ccf3d0328dc70b77c636d3581ed5e401255ca6b8cb700f93b4ce901fa87e
+HTTP/2 200
+access-control-allow-headers: *
+access-control-allow-origin: https://browserleaks.com
+cache-control: no-store, no-cache, must-revalidate, max-age=0
+content-encoding: br
+content-type: application/json
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+pragma: no-cache
+server: nginx
+vary: Accept-Encoding
+x-content-type-options: nosniff
+content-length: 594
+date: Thu, 19 Nov 2026 02:29:28 GMT
+
+{
+  "user_agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Mobile/15E148 Safari/604.1",
+  "ja4": "t13d2014h2_a09f3c656075_e42f34c56612",
+  "ja4_r": "t13d2014h2_000a,002f,0035,009c,009d,1301,1302,1303,c008,c009,c00a,c012,c013,c014,c02b,c02c,c02f,c030,cca8,cca9_0005,000a,000b,000d,0012,0015,0017,001b,002b,002d,0033,ff01_0403,0804,0401,0503,0805,0805,0501,0806,0601,0201",
+  "ja4_o": "t13d2014h2_de3eb69493ac_b9c16f732f1a",
+  "ja4_ro": "t13d2014h2_1301,1302,1303,c02c,c02b,cca9,c030,c02f,cca8,c00a,c009,c014,c013,009d,009c,0035,002f,c008,c012,000a_0000,0017,ff01,000a,000b,0010,0005,000d,0012,0033,002d,002b,001b,0015_0403,0804,0401,0503,0805,0805,0501,0806,0601,0201",
+  "ja3_hash": "773906b0efdefa24a7f2b8eb6985bf37",
+  "ja3_text": "771,4865-4866-4867-49196-49195-52393-49200-49199-52392-49162-49161-49172-49171-157-156-53-47-49160-49170-10,0-23-65281-10-11-16-5-13-18-51-45-43-27-21,29-23-24-25,0",
+  "ja3n_hash": "44f7ed5185d22c92b96da72dbe68d307",
+  "ja3n_text": "771,4865-4866-4867-49196-49195-52393-49200-49199-52392-49162-49161-49172-49171-157-156-53-47-49160-49170-10,0-5-10-11-13-16-18-21-23-27-43-45-51-65281,29-23-24-25,0",
+  "akamai_hash": "c52879e43202aeb92740be6e8c86ea96",
+  "akamai_text": "2:0;3:100;4:2097152;9:1|10420225|0|m,s,a,p"
+}
+```
