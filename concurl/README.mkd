@@ -6,6 +6,7 @@ https://github.com/tomnomnom/hacks/tree/master/concurl but with TLS spoofing
 $ echo -e "https://example.com\nhttps://go.dev\nhttps://tls.browserleaks.com/json"
 https://example.com
 https://go.dev
+https://tls.browserleaks.com/json
 
 $ echo -e "https://example.com\nhttps://go.dev\nhttps://tls.browserleaks.com/json" | concurl -- -i
 out\6146ccf3d0328dc70b77c636d3581ed5e401255ca6b8cb700f93b4ce901fa87e https://tls.browserleaks.com/json
