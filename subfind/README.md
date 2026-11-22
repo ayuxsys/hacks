@@ -8,7 +8,9 @@ Usage of C:\Users\ayux\bin\projects\cybersecurity\hacks\subfind\subfind.exe:
   -o string
     	path to the output file
   -r	run recursion on enumerated subdomains to find subdomains of subdomains (slow)
-
+  -sl string
+    	path to the log file to write stderr of executed commands into
+     
 $ subfind -- -h
 Usage of tools:
   -rsf string
