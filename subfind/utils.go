@@ -5,6 +5,15 @@ import (
 	"os"
 )
 
+// openFileA opens a file in append mode
+func openFileA(path string) *os.File {
+	file, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		panic(err)
+	}
+	return file
+}
+
 // dedupeSlice removes duplicate entires from a slice and returns the new unique slice
 func dedupeSlice(slice []string) []string {
 	var newSlice []string

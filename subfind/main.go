@@ -17,6 +17,7 @@ func main() {
 	outputFile := flag.String("o", "", "path to the output file")
 	recursion = *flag.Bool("r", false, "run recursion on enumerated subdomains to find subdomains of subdomains (slow)")
 	domain := flag.String("d", "", "domain to find subdomains for")
+	flag.StringVar(&stderrLogFile, "sl", "", "path to the log file to write stderr of executed commands into")
 
 	flag.Parse()
 

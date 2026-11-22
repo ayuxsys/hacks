@@ -3,8 +3,13 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"os/exec"
 	"strings"
+)
+
+var (
+	stderrLogFile string
 )
 
 type shell struct {
@@ -18,9 +23,16 @@ func (s shell) execute(args ...string) (string, error) {
 	cmd.Stdin = strings.NewReader(s.stdin)
 
 	var stdout bytes.Buffer
-	var stderr bytes.Buffer
-	cmd.Stderr = &stderr
 	cmd.Stdout = &stdout
+
+	var stderr bytes.Buffer
+	if stderrLogFile != "" {
+		file := openFileA(stderrLogFile)
+		defer file.Close()
+		cmd.Stderr = io.MultiWriter(file, &stderr)
+	} else {
+		cmd.Stderr = &stderr
+	}
 
 	infoL.Printf("running command: %q", cmd.String())
 	if err := cmd.Run(); err != nil {
