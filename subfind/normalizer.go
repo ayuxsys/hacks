@@ -13,13 +13,16 @@ func normalizeWC(wc string) string {
 }
 
 func normalizeSingleAsterisk(w string) string {
+	// *.example.com => example.com
 	if strings.HasPrefix(w, "*.") {
 		return strings.Replace(w, "*.", "", 1)
 	}
+	// *example.com => example.com
 	if strings.HasPrefix(w, "*") {
 		return strings.Replace(w, "*", "", 1)
 	}
 
+	// staging-uat.*.example.com => example.com (do the filtering later)
 	pos := strings.Index(w, "*")
 	return strings.Join(strings.Split(w[pos+1:], ".")[1:], ".")
 }
