@@ -28,3 +28,15 @@ func normalizeSingleAsterisk(w string) string {
 	pos := strings.Index(w, "*")
 	return strings.Join(strings.Split(w[pos+1:], ".")[1:], ".")
 }
+
+// trimHttpPrefix cuts 'http://' or 'https://' prefix from a string if present
+// otherwise the same string is returned back
+func trimHttpPrefix(s string) string {
+	if st, found := strings.CutPrefix(s, "http://"); found {
+		return st
+	}
+	if st, found := strings.CutPrefix(s, "https://"); found {
+		return st
+	}
+	return s
+}

@@ -1,0 +1,7 @@
+staging-uat.example.com
+staging-prod.example.com
+foobar.staging-uaz.example.com
+foobar.example.com
+testbaz.example.com
+example.org
+example.com

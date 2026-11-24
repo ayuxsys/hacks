@@ -65,12 +65,14 @@ func main() {
 
 // findSubdomain runs all the subdomain enumerator tools on the given domain
 func findSubdomain(wc string) error {
+	wc = trimHttpPrefix(wc)
 	infoL.Println("enumerating subdomains for", wc)
 
 	re := regexp.MustCompile(createRegex(wc))
 	domain := normalizeWC(wc)
 
 	var subs []string
+
 	subs, err := subfinder([]string{domain}, strings.Split(subfinderAddonArgs, " ")...)
 	if err != nil {
 		errL.Println(joinErr("subfinder", err).Error())
