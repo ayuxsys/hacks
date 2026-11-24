@@ -32,3 +32,5 @@ subfind -d "staging-*.example.com" -r -o "subs.jsonl" -oa "subs_all.jsonl" -sl "
 - run recursively to find subdomains of subdomains (`-all` not used here use `-rsf "all"`)
 - save output for `staging-*.example.com` to subs.jsonl
 - save output for `*.example.com` to subs_all.jsonl
+
+also supports reading from stdin: `cat domains.txt | subfind -oa "subs_all.jsonl" -sl stderr.log -r`
