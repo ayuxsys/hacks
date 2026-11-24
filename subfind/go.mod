@@ -1,4 +1,4 @@
-module "github.com/ayuxsys/hacks"
+module "github.com/ayuxsys/hacks/subfind"
 
 go 1.26.2
 
