@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 )
 
@@ -14,7 +15,8 @@ var (
 )
 
 func main() {
-	outputFile := flag.String("o", "", "path to the output file")
+	outputFile := flag.String("o", "", "path to the output file to write enumerated subdomains into (after filtering scopes)")
+	opAllSubsFile := flag.String("oa", "", "path to the output file to write all enumerated subdomains into")
 	recursion = *flag.Bool("r", false, "run recursion on enumerated subdomains to find subdomains of subdomains (slow)")
 	domain := flag.String("d", "", "domain to find subdomains for")
 	flag.StringVar(&stderrLogFile, "sl", "", "path to the log file to write stderr of executed commands into")
@@ -45,47 +47,61 @@ func main() {
 		setLogOp(file)
 	}
 
+	if *opAllSubsFile != "" {
+		defer setLogAllOP(*opAllSubsFile)()
+	}
+
 	for _, wc := range wildCards {
 		if wc == "" {
 			continue
 		}
 		domain := normalizeWC(wc)
-		subs, err := findSubdomain(domain)
-		if err != nil {
+		if err := findSubdomain(domain); err != nil {
 			errL.Printf("'findSubdomain' domain=%q: %v", domain, err)
 			continue
 		}
-		uniqSubs := dedupeSlice(subs)
-		for _, d := range uniqSubs {
-			opL.Println(d)
-		}
-		okL.Printf("found %d subdomains for domain %q", len(uniqSubs), domain)
 	}
 }
 
 // findSubdomain runs all the subdomain enumerator tools on the given domain
-// and returns the enumerated subdomains
-func findSubdomain(domain string) ([]string, error) {
-	infoL.Println("enumerating subdomains for", domain)
+func findSubdomain(wc string) error {
+	infoL.Println("enumerating subdomains for", wc)
+
+	re := regexp.MustCompile(createRegex(wc))
+	domain := normalizeWC(wc)
+
 	var subs []string
 	subs, err := subfinder([]string{domain}, strings.Split(subfinderAddonArgs, " ")...)
 	if err != nil {
 		errL.Println(joinErr("subfinder", err).Error())
 	}
 
-	uniqSubs := dedupeSlice(subs)
-	infoL.Printf("found %d subdomains for %q", len(uniqSubs), domain)
+	subs = dedupeSlice(subs)
+	infoL.Printf("found %d subdomains for %q", len(subs), domain)
 
-	if recursion {
+	if recursion && len(subs) != 0 {
 		infoL.Println("running recursive search to find subdomains of enumerated subdomains")
-		rSubs, err := subfinder(uniqSubs, append(strings.Split(recSubfinderAddonArgs, "\n"), "-recursive")...)
+		rSubs, err := subfinder(subs, append(strings.Split(recSubfinderAddonArgs, "\n"), "-recursive")...)
 		if err != nil {
-			errL.Println(joinErr("subfinder", err).Error())
+			errL.Println(joinErr("subfinder recursion run", err).Error())
 		}
-		uniqSubs = append(uniqSubs, dedupeSlice(rSubs)...)
+		subs = append(subs, dedupeSlice(rSubs)...)
 	}
 
-	return uniqSubs, nil
+	for _, d := range subs {
+		opAL.Println(d)
+	}
+
+	okL.Printf("found total %d subdomains for domain %q", len(subs), domain)
+	infoL.Println("filtering subdomains")
+
+	for _, s := range subs {
+		if re.MatchString(s) {
+			opL.Println(s)
+		}
+	}
+
+	return nil
 }
 
 func joinErr(context string, err error, v ...string) error {

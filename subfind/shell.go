@@ -34,10 +34,21 @@ func (s shell) execute(args ...string) (string, error) {
 		cmd.Stderr = &stderr
 	}
 
-	infoL.Printf("running command: %q", cmd.String())
+	s.logCmd(cmd.String())
 	if err := cmd.Run(); err != nil {
 		return "", fmt.Errorf("cmd=%q, stderr=%s, error=%v", cmd.String(), stderr.String(), err)
 	}
 
 	return stdout.String(), nil
+}
+
+func (s shell) logCmd(st string) {
+	switch {
+	case s.stdin == "":
+		infoL.Printf("running command: %q", st)
+	case len(s.stdin) < 40:
+		infoL.Printf("running command: %q, domain(s)=%s", st, s.stdin)
+	default:
+		infoL.Printf("running command: %q, domain(s)=%d", st, len(strings.Split(st, "\n")))
+	}
 }

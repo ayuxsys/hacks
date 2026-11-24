@@ -1,6 +1,8 @@
 package main
 
-import "strings"
+import (
+	"strings"
+)
 
 func normalizeWC(wc string) string {
 	if !strings.Contains(wc, "*") {
