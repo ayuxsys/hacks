@@ -24,10 +24,11 @@ Usage of tools:
 ### example:
 
 ```sh
-subfind -d "example.com" -r -o "subs.txt" -oa "subs_all.txt" -sl "stderr.log" -- -sf "-all"
+subfind -d "staging-*.example.com" -r -o "subs.jsonl" -oa "subs_all.jsonl" -sl "stderr.log" -- -sf "-all"
 ```
 
 - find subdomains of `example.com`
 - use all sources for subfinder
 - run recursively to find subdomains of subdomains (`-all` not used here use `-rsf "all"`)
-- save output to subs.txt
+- save output for `staging-*.example.com` to subs.jsonl
+- save output for `*.example.com` to subs_all.jsonl
