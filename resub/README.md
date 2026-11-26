@@ -20,6 +20,14 @@ FUZZ.example.com
 FUZZ.test-uat.example.com
 prod.FUZZ-uat.example.com
 prod.test-FUZZ.example.com
+
+$ resub domains.txt -w wordlist.txt | sort -u  # dedupe
+FUZZ.example.com
+FUZZ.test-uat.example.com
+FUZZ-prod.example.com
+prod.FUZZ-uat.example.com
+prod.test-FUZZ.example.com
+staging-FUZZ.example.com
 ```
 
 Takes a domain (or file of domains), generates `FUZZ` positions when needed, and replaces them using the selected wordlist.
