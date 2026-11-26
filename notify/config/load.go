@@ -3,8 +3,8 @@ package config
 import (
 	"os"
 
-	"github.com/ayuxsys/notify/log"
-	"github.com/ayuxsys/notify/must"
+	"github.com/ayuxsys/hacks/notify/log"
+	"github.com/ayuxsys/hacks/notify/must"
 	"github.com/goccy/go-yaml"
 )
 

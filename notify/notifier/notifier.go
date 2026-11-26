@@ -1,6 +1,6 @@
 package notifier
 
-import "github.com/ayuxsys/notify/config"
+import "github.com/ayuxsys/hacks/notify/config"
 
 type Notify struct {
 	Cfg  config.Config

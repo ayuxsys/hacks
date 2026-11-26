@@ -1,5 +1,7 @@
 # notify
 
+install: `go install github.com/ayuxsys/hacks/notify@latest`
+
 ```console
 $ notify -h
 Usage: notify [flags]

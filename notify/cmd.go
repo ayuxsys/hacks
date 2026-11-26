@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/ayuxsys/notify/config"
+	"github.com/ayuxsys/hacks/notify/config"
 	"github.com/spf13/pflag"
 )
 

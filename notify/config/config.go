@@ -4,7 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ayuxsys/notify/must"
+	"github.com/ayuxsys/hacks/notify/must"
 )
 
 var (

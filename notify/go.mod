@@ -1,4 +1,4 @@
-module github.com/ayuxsys/notify
+module github.com/ayuxsys/hacks/notify
 
 go 1.26.2
 
