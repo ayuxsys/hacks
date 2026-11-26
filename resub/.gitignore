@@ -1,3 +1,4 @@
 /resub
 testdata
 *.xml
+tests/
