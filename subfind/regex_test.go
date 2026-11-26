@@ -14,6 +14,20 @@ func TestCheckRegex(t *testing.T) {
 		ShouldNotMatch []string
 	}{
 		{
+			Domain: "example.com",
+			ShouldMatch: []string{
+				"example.com",
+				"api.example.com",
+				"staging.example.com",
+				"foo.bar.example.com",
+			},
+			ShouldNotMatch: []string{
+				"notexample.com",
+				"example.org",
+				"notexample.com.evil.org",
+			},
+		},
+		{
 			Domain: "*.example.com",
 			ShouldMatch: []string{
 				"test.example.com",

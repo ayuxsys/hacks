@@ -30,7 +30,7 @@ func findSubdomain(wc string) error {
 	infoL.Printf("found %d subdomains for %q", len(subs), domain)
 
 	if recursion && len(subs) != 0 {
-		infoL.Println("running recursive search to find subdomains of enumerated subdomains")
+		infoL.Printf("running recursive search to find subdomains of %d enumerated subdomains", len(subs))
 		rSubs, err := subfinder(subs, append(strings.Split(recSubfinderAddonArgs, "\n"), "-recursive")...)
 		if err != nil {
 			errL.Println(joinErr("subfinder recursion run", err).Error())

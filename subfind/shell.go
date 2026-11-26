@@ -43,12 +43,10 @@ func (s shell) execute(args ...string) (string, error) {
 }
 
 func (s shell) logCmd(st string) {
-	switch {
-	case s.stdin == "":
+	switch s.stdin {
+	case "":
 		infoL.Printf("running command: %q", st)
-	case len(s.stdin) < 40:
-		infoL.Printf("running command: %q, domain(s)=%s", st, s.stdin)
 	default:
-		infoL.Printf("running command: %q, domain(s)=%d", st, len(strings.Split(st, "\n")))
+		infoL.Printf("running command: %q, domain(s)=%d", st, len(strings.Split(s.stdin, "\n")))
 	}
 }
