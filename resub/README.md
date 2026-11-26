@@ -33,5 +33,5 @@ staging-FUZZ.example.com
 # example workflow
 
 ```sh
-resub subs.txt -m tiny | puredns resolve -w fuzzed.txt
+resub subs.txt -m tiny | sort -u | puredns resolve -w fuzzed.txt
 ```
