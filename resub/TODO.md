@@ -1,0 +1,2 @@
+- [ ] wordlist configure from cli
+- [x] Holding results of each domain causes spike in RAM/CPU better to print to stdout for each perm
