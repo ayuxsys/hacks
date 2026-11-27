@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,6 +13,7 @@ func setupAPIRoute(r *gin.Engine) {
 	})
 
 	subs := r.Group("/subs")
+	subs.Use(authMiddleWare())
 
 	subs.GET("/domains/count", totalDomainsCount)
 	subs.GET("/fetch", fetchSubs)
@@ -39,4 +41,22 @@ func totalDomainsCount(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"count": count})
+}
+
+func authMiddleWare() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		apiKey := c.GetHeader("X-API-KEY")
+		expected := os.Getenv("API_KEY")
+
+		// skip authentication if `API_KEY` env variable not set
+		if expected == "" {
+			c.Next()
+			return
+		}
+
+		if apiKey != expected {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid API Key"})
+		}
+		c.Next()
+	}
 }

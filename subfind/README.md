@@ -61,3 +61,19 @@ $ curl "http://localhost:8000/subs/fetch?id=1" -s | jq .
   "tag": "bbp"
 }
 ```
+
+securing the server with an api key:
+
+```sh
+$ openssl rand -base64 32
+dj9Ea56wm2ZZzYsM2G33A7vL2PsmpktEaSgS4ousw2c=
+
+$ API_KEY="dj9Ea56wm2ZZzYsM2G33A7vL2PsmpktEaSgS4ousw2c" subfind -a
+[GIN-debug] Listening and serving HTTP on :8000
+
+$ curl "http://localhost:8000/subs/domains/count" -H "X-API-KEY: dj9Ea56wm2ZZzYsM2G33A7vL2PsmpktEaSgS4ousw2c"
+{"count":245}
+
+$ curl "http://localhost:8000/subs/domains/count"
+{"error":"invalid API Key"}
+```
