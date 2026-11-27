@@ -5,7 +5,10 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 var (
@@ -16,6 +19,8 @@ var (
 	envPath               string
 	tag                   string
 	jsonOutputFile        string
+	startAPI              bool
+	apiPort               int64
 )
 
 func main() {
@@ -25,6 +30,8 @@ func main() {
 	flag.StringVar(&envPath, "e", filepath.Join(must(os.UserConfigDir()), "subfind", ".env"), "path to the .env file to load configurations from")
 	flag.StringVar(&tag, "t", "", "tag the data saved  (e.g. vdp/bbp)")
 	flag.StringVar(&jsonOutputFile, "o", "", "fetch database for bbp and vdp subdomains then save output and exit")
+	flag.BoolVar(&startAPI, "a", false, "start subfind api server")
+	flag.Int64Var(&apiPort, "p", 8000, "port to use for running the api server")
 
 	domain := flag.String("d", "", "domain to find subdomains for")
 
@@ -45,6 +52,15 @@ func main() {
 			errL.Fatal(err)
 		}
 		return
+	}
+
+	if startAPI {
+		r := gin.Default()
+		setupAPIRoute(r)
+		strPort := strconv.Itoa(int(apiPort))
+		if err := r.Run(":" + strPort); err != nil {
+			errL.Fatal(err)
+		}
 	}
 
 	if *domain != "" {

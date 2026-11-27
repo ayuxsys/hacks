@@ -36,7 +36,6 @@ func initDBConnection() {
 	if err := Connect(databaseURL); err != nil {
 		errL.Fatalf("error while connecting to the psql database: %v", err)
 	}
-
 }
 
 func Connect(dsn string) error {

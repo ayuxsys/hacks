@@ -6,13 +6,20 @@ DATABASE_URL=""
 
 $ subfind -h
 Usage of C:\Users\ayux\go\bin\subfind.exe:
+  -a	start subfind api server
   -d string
     	domain to find subdomains for
   -e string
-    	path to the .env file to load configurations from (default "C:\\Users\\ayux\\AppData\\Roaming\\subfind")
+    	path to the .env file to load configurations from (default "C:\\Users\\ayux\\AppData\\Roaming\\subfind\\.env")
+  -o string
+    	fetch database for bbp and vdp subdomains then save output and exit
+  -p int
+    	port to use for running the api server (default 8000)
   -r	run recursion on enumerated subdomains to find subdomains of subdomains (slow)
   -sl string
     	path to the log file to write stderr of executed commands into
+  -t string
+    	tag the data saved  (e.g. vdp/bbp)
   -u string
     	psql database url to use for connection (reads DB_URL from .env otherwise)
 ```
@@ -29,3 +36,28 @@ subfind -d "staging-*.example.com" -r -sl "stderr.log" -- -sf "-all"
 - log output from executed commands to `stderr.log`
 
 also supports reading from stdin: `cat domains.txt | subfind -r -- -sf "all"`
+
+**start API**
+
+```sh
+subfind -a -p 8000
+```
+
+fetch total domains count:
+
+```sh
+curl "http://localhost:8000/subs/domains/count" -s | jq .count
+241
+```
+
+fetch an id:
+
+```sh
+curl "http://localhost:8000/subs/fetch?id=1" -s | jq .
+
+{
+  "domain": "*.hackerone-user-content.com",
+  "subs": [],
+  "tag": "bbp"
+}
+```
