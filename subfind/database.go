@@ -1,38 +1,15 @@
 package main
 
 import (
-	"os"
-
-	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
-var (
-	Conn = &Connection{}
-)
+var databaseConn *Connection
 
 type Connection struct {
 	*gorm.DB
-}
-
-func init() {
-	var err error
-	Conn, err = Connect()
-	if err != nil {
-		errL.Printf("failed to connect to psql database saving will be skipped: %v", err)
-	}
-	if err := Conn.Migrate(); err != nil {
-		errL.Fatal(err)
-	}
-}
-
-func Connect() (*Connection, error) {
-	if err := godotenv.Load(".env"); err != nil {
-		return nil, err
-	}
-	conn, err := gorm.Open(postgres.Open(os.Getenv("DB_URL")), &gorm.Config{})
-	return &Connection{DB: conn}, err
 }
 
 // model
@@ -40,6 +17,12 @@ type SubFinder struct {
 	ID     int
 	Domain string
 	Subs   []string `gorm:"serializer:json"`
+}
+
+func Connect(dsn string) error {
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{Logger: logger.Default.LogMode(logger.Warn)})
+	databaseConn = &Connection{DB: db}
+	return err
 }
 
 func (SubFinder) TableName() string {

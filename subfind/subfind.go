@@ -1,8 +1,7 @@
 package main
 
 import (
-	"encoding/json"
-	"regexp"
+	"fmt"
 	"strings"
 )
 
@@ -16,7 +15,6 @@ func findSubdomain(wc string) error {
 	wc = trimHttpPrefix(wc)
 	infoL.Println("enumerating subdomains for", wc)
 
-	re := regexp.MustCompile(createRegex(wc))
 	domain := normalizeWC(wc)
 
 	var subs []string
@@ -37,43 +35,30 @@ func findSubdomain(wc string) error {
 		}
 		subs = append(subs, dedupeSlice(rSubs)...)
 	}
-
-	data := must(
-		json.Marshal(Result{
-			WildCard:   wc,
-			SubDomains: subs,
-		}),
-	)
-
-	opAL.Println(string(data))
-
 	okL.Printf("found total %d subdomains for domain %q", len(subs), domain)
-	infoL.Println("filtering subdomains")
 
-	var filteredSubs []string
 	for _, s := range subs {
-		if re.MatchString(s) {
-			filteredSubs = append(filteredSubs, s)
-		}
+		fmt.Println(s)
 	}
 
-	data = must(
-		json.Marshal(Result{
-			WildCard:   wc,
-			SubDomains: filteredSubs,
-		}),
-	)
+	// infoL.Println("filtering subdomains")
+	// var filteredSubs []string
+	// re := regexp.MustCompile(createRegex(wc))
+	// for _, s := range subs {
+	// 	if re.MatchString(s) {
+	// 		filteredSubs = append(filteredSubs, s)
+	// 	}
+	// }
 
-	opL.Println(string(data))
-
-	if Conn != nil {
+	if databaseConn != nil {
 		subfinder := &SubFinder{
 			Domain: wc,
 			Subs:   subs,
 		}
-		if err := Conn.Create(subfinder).Error; err != nil {
+		if err := databaseConn.Create(subfinder).Error; err != nil {
 			errL.Fatal(err)
 		}
+		okL.Printf("pushed %d sudomain for domain %q to database", len(subs), domain)
 	}
 
 	return nil

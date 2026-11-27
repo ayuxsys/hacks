@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"os"
 	"os/exec"
 	"strings"
 )
@@ -27,7 +28,7 @@ func (s shell) execute(args ...string) (string, error) {
 
 	var stderr bytes.Buffer
 	if stderrLogFile != "" {
-		file := openFileA(stderrLogFile)
+		file := must(os.OpenFile(stderrLogFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644))
 		defer file.Close()
 		cmd.Stderr = io.MultiWriter(file, &stderr)
 	} else {

@@ -3,21 +3,28 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
+
+	"github.com/joho/godotenv"
 )
 
 var (
+	databaseURL           string
 	recursion             bool
 	subfinderAddonArgs    string
 	recSubfinderAddonArgs string
+	envPath               string
 )
 
 func main() {
-	outputFile := flag.String("o", "", "path to the jsonl file to write all enumerated subdomains into (after filtering scopes)")
-	opAllSubsFile := flag.String("oa", "", "path to the jsonl file to write all enumerated subdomains into")
 	flag.BoolVar(&recursion, "r", false, "run recursion on enumerated subdomains to find subdomains of subdomains (slow)")
-	domain := flag.String("d", "", "domain to find subdomains for")
 	flag.StringVar(&stderrLogFile, "sl", "", "path to the log file to write stderr of executed commands into")
+	flag.StringVar(&databaseURL, "u", "", "psql database url to use for connection (reads DB_URL from .env otherwise)")
+	flag.StringVar(&envPath, "e", filepath.Join(must(os.UserConfigDir()), "subfind", ".env"), "path to the .env file to load configurations from")
+
+	domain := flag.String("d", "", "domain to find subdomains for")
 
 	flag.Parse()
 
@@ -36,12 +43,15 @@ func main() {
 		wildCards = readStdin()
 	}
 
-	if *outputFile != "" {
-		defer setLogOp(*outputFile)()
+	if databaseURL == "" {
+		if err := godotenv.Load(envPath); err != nil {
+			errL.Fatal(err)
+		}
+		databaseURL = os.Getenv("DB_URL")
 	}
 
-	if *opAllSubsFile != "" {
-		defer setLogAllOP(*opAllSubsFile)()
+	if err := Connect(databaseURL); err != nil {
+		errL.Fatalf("error while connecting to the psql database: %v", err)
 	}
 
 	for _, wc := range wildCards {
