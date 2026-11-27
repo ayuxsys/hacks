@@ -6,8 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/joho/godotenv"
 )
 
 var (
@@ -17,6 +15,7 @@ var (
 	recSubfinderAddonArgs string
 	envPath               string
 	tag                   string
+	jsonOutputFile        string
 )
 
 func main() {
@@ -25,6 +24,7 @@ func main() {
 	flag.StringVar(&databaseURL, "u", "", "psql database url to use for connection (reads DB_URL from .env otherwise)")
 	flag.StringVar(&envPath, "e", filepath.Join(must(os.UserConfigDir()), "subfind", ".env"), "path to the .env file to load configurations from")
 	flag.StringVar(&tag, "t", "", "tag the data saved  (e.g. vdp/bbp)")
+	flag.StringVar(&jsonOutputFile, "o", "", "fetch database for bbp and vdp subdomains then save output and exit")
 
 	domain := flag.String("d", "", "domain to find subdomains for")
 
@@ -39,21 +39,18 @@ func main() {
 
 	fs.Parse(toolArgs)
 
+	initDBConnection()
+	if jsonOutputFile != "" {
+		if err := databaseConn.JsonOutput(jsonOutputFile); err != nil {
+			errL.Fatal(err)
+		}
+		return
+	}
+
 	if *domain != "" {
 		wildCards = append(wildCards, *domain)
 	} else {
 		wildCards = readStdin()
-	}
-
-	if databaseURL == "" {
-		if err := godotenv.Load(envPath); err != nil {
-			errL.Fatal(err)
-		}
-		databaseURL = os.Getenv("DB_URL")
-	}
-
-	if err := Connect(databaseURL); err != nil {
-		errL.Fatalf("error while connecting to the psql database: %v", err)
 	}
 
 	for _, wc := range wildCards {
