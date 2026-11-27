@@ -66,6 +66,16 @@ func findSubdomain(wc string) error {
 
 	opL.Println(string(data))
 
+	if Conn != nil {
+		subfinder := &SubFinder{
+			Domain: wc,
+			Subs:   subs,
+		}
+		if err := Conn.Create(subfinder).Error; err != nil {
+			errL.Fatal(err)
+		}
+	}
+
 	return nil
 }
 
