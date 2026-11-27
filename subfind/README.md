@@ -46,14 +46,14 @@ subfind -a -p 8000
 fetch total domains count:
 
 ```sh
-curl "http://localhost:8000/subs/domains/count" -s | jq .count
+$ curl "http://localhost:8000/subs/domains/count" -s | jq .count
 241
 ```
 
 fetch an id:
 
 ```sh
-curl "http://localhost:8000/subs/fetch?id=1" -s | jq .
+$ curl "http://localhost:8000/subs/fetch?id=1" -s | jq .
 
 {
   "domain": "*.hackerone-user-content.com",
