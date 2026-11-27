@@ -12,7 +12,7 @@ type Result struct {
 
 // findSubdomain runs all the subdomain enumerator tools on the given domain
 func findSubdomain(wc string) error {
-	wc = trimHttpPrefix(wc)
+	wc = cleanWC(wc)
 	infoL.Println("enumerating subdomains for", wc)
 
 	domain := normalizeWC(wc)
