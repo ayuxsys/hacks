@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -22,8 +24,11 @@ type SubFinder struct {
 
 func Connect(dsn string) error {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{Logger: logger.Default.LogMode(logger.Warn)})
+	if err != nil {
+		return fmt.Errorf("'gorm.Open': %v", err)
+	}
 	databaseConn = &Connection{DB: db}
-	return err
+	return databaseConn.Migrate()
 }
 
 func (SubFinder) TableName() string {
