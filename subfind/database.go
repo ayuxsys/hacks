@@ -17,6 +17,7 @@ type SubFinder struct {
 	ID     int
 	Domain string
 	Subs   []string `gorm:"serializer:json"`
+	Tag    string
 }
 
 func Connect(dsn string) error {

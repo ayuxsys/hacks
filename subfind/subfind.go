@@ -54,6 +54,7 @@ func findSubdomain(wc string) error {
 		subfinder := &SubFinder{
 			Domain: wc,
 			Subs:   subs,
+			Tag:    tag,
 		}
 		if err := databaseConn.Create(subfinder).Error; err != nil {
 			errL.Fatal(err)

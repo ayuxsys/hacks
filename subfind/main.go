@@ -16,6 +16,7 @@ var (
 	subfinderAddonArgs    string
 	recSubfinderAddonArgs string
 	envPath               string
+	tag                   string
 )
 
 func main() {
@@ -23,6 +24,7 @@ func main() {
 	flag.StringVar(&stderrLogFile, "sl", "", "path to the log file to write stderr of executed commands into")
 	flag.StringVar(&databaseURL, "u", "", "psql database url to use for connection (reads DB_URL from .env otherwise)")
 	flag.StringVar(&envPath, "e", filepath.Join(must(os.UserConfigDir()), "subfind", ".env"), "path to the .env file to load configurations from")
+	flag.StringVar(&tag, "t", "", "tag the data saved  (e.g. vdp/bbp)")
 
 	domain := flag.String("d", "", "domain to find subdomains for")
 
