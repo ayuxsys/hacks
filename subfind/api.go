@@ -7,6 +7,10 @@ import (
 )
 
 func setupAPIRoute(r *gin.Engine) {
+	r.GET("/health", func(ctx *gin.Context) {
+		ctx.JSON(http.StatusOK, gin.H{"status": "ok"})
+	})
+
 	subs := r.Group("/subs")
 
 	subs.GET("/domains/count", totalDomainsCount)
