@@ -17,6 +17,7 @@ func setupAPIRoute(r *gin.Engine) {
 	subs := r.Group("/subs")
 	subs.Use(authMiddleWare())
 
+	subs.GET("/domains", fetchTotalDomains)
 	subs.GET("/domains/count", totalDomainsCount)
 	subs.GET("/fetch", fetchSubs)
 }
@@ -49,6 +50,37 @@ func fetchSubs(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"domain": subFind.Domain, "subs": subFind.Subs, "tag": subFind.Tag})
+}
+
+func fetchTotalDomains(c *gin.Context) {
+	var data []SubFinder
+	if err := databaseConn.Select("domain", "id", "tag").Find(&data).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "record not found"})
+			return
+		}
+		writeServerError(c)
+		errL.Println(err)
+		return
+	}
+
+	type domains struct {
+		Domain string `json:"domain"`
+		ID     int    `json:"id"`
+		Tag    string `json:"tag"`
+	}
+
+	var response []domains
+
+	for _, d := range data {
+		response = append(response, domains{
+			Domain: d.Domain,
+			ID:     d.ID,
+			Tag:    d.Tag,
+		})
+	}
+
+	c.JSON(http.StatusOK, response)
 }
 
 func totalDomainsCount(c *gin.Context) {
