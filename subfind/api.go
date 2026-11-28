@@ -1,10 +1,12 @@
 package main
 
 import (
+	"errors"
 	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func setupAPIRoute(r *gin.Engine) {
@@ -20,15 +22,30 @@ func setupAPIRoute(r *gin.Engine) {
 }
 
 func fetchSubs(c *gin.Context) {
-	id, exists := c.GetQuery("id")
-	if !exists {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "id is required"})
-		return
-	}
+	domain := c.Query("domain")
+	id := c.Query("id")
+
 	var subFind SubFinder
-	if err := databaseConn.Select("domain", "subs", "tag").Where("id=(?)", id).First(&subFind).Error; err != nil {
-		errL.Println(err)
-		return
+	if id != "" {
+		if err := databaseConn.Select("domain", "subs", "tag").Where("id=(?)", id).First(&subFind).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				c.JSON(http.StatusNotFound, gin.H{"error": "record not found"})
+				return
+			}
+			writeServerError(c)
+			errL.Println(err)
+			return
+		}
+	} else if domain != "" {
+		if err := databaseConn.Select("domain", "subs", "tag").Where("domain=(?)", domain).First(&subFind).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				c.JSON(http.StatusNotFound, gin.H{"error": "record not found"})
+				return
+			}
+			writeServerError(c)
+			errL.Println(err)
+			return
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{"domain": subFind.Domain, "subs": subFind.Subs, "tag": subFind.Tag})
@@ -37,6 +54,7 @@ func fetchSubs(c *gin.Context) {
 func totalDomainsCount(c *gin.Context) {
 	var count int64
 	if err := databaseConn.Model(&SubFinder{}).Count(&count).Error; err != nil {
+		writeServerError(c)
 		errL.Print(err)
 		return
 	}
@@ -59,4 +77,8 @@ func authMiddleWare() gin.HandlerFunc {
 		}
 		c.Next()
 	}
+}
+
+func writeServerError(c *gin.Context) {
+	c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 }
