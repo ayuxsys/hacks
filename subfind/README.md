@@ -29,12 +29,13 @@ Usage of C:\Users\ayux\go\bin\subfind.exe:
 ### example:
 
 ```sh
-subfind -d "staging-*.example.com" -r -sl "stderr.log" -- -sf "-all"
+subfind -d "staging-*.example.com" -r -sl "stderr.log" -- -sf "-all" -t "test"
 ```
 
 - find subdomains of `example.com`
 - use all sources for subfinder
 - run recursively to find subdomains of subdomains (`-all` not used here use `-rsf "all"`)
+- tag as `test`
 - log output from executed commands to `stderr.log`
 
 also supports reading from stdin: `cat domains.txt | subfind -r -- -sf "all"`
