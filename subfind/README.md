@@ -1,5 +1,7 @@
 ## subfind
 
+TL;DR: enumerate subdomains for a domain or wildcard (normalize wildcard to domain), save results to a psql db, later spin up an API server to fetch subs from the db
+
 ```console
 $ cat .env_tmp  # psql database url
 DATABASE_URL=""
